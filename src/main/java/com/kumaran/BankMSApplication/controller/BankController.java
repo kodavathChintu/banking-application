@@ -1,6 +1,6 @@
-package com.kumaran.BankMSApplication.controllers;
+package com.kumaran.BankMSApplication.controller;
 
-import com.kumaran.BankMSApplication.entity.Bank;
+import com.kumaran.BankMSApplication.dto.BankDto;
 import com.kumaran.BankMSApplication.service.BankService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,9 +14,8 @@ public class BankController {
 
     private final BankService bankService;
 
-    @GetMapping
-    public List<Bank> getAllBanks() {
-
+    @GetMapping("/all")
+    public List<BankDto> getAllBanks() {
         return bankService.getAllBanks();
     }
 }

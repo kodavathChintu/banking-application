@@ -15,6 +15,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "accounts")
 public class Account {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long accountId;
@@ -23,13 +24,15 @@ public class Account {
     private String accountNumber;
 
     @Column(nullable = false)
-    private Double balance;
+    private Double balance = 0.0;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private AccountType accountType;
 
     @Enumerated(EnumType.STRING)
-    private AccountStatus accountStatus;
+    @Column(nullable = false)
+    private AccountStatus accountStatus = AccountStatus.ACTIVE;
 
     @Column(nullable = false)
     private LocalDate openingDate;

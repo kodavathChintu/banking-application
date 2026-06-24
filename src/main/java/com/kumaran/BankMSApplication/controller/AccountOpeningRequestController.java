@@ -1,10 +1,11 @@
-package com.kumaran.BankMSApplication.controllers;
+package com.kumaran.BankMSApplication.controller;
 
 import com.kumaran.BankMSApplication.dto.AccountOpeningRequestDto;
 import com.kumaran.BankMSApplication.service.AccountOpeningRequestService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/customer")
@@ -16,8 +17,11 @@ public class AccountOpeningRequestController {
     @PostMapping("/account-opening")
     public String submitRequest(
             @RequestBody AccountOpeningRequestDto dto,
-            @RequestParam String email){
+            Authentication authentication) {
 
-        return service.submitRequest(dto, email);
+        return service.submitRequest(
+                dto,
+                authentication.getName()
+        );
     }
 }

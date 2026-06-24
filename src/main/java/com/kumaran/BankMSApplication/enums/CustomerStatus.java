@@ -1,5 +1,7 @@
 package com.kumaran.BankMSApplication.enums;
 
 public enum CustomerStatus {
-    ACTIVE;
+    PENDING,
+    APPROVED,
+    REJECTED
 }

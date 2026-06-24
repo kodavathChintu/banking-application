@@ -1,9 +1,10 @@
 package com.kumaran.BankMSApplication.service;
 
-import com.kumaran.BankMSApplication.entity.Bank;
+import com.kumaran.BankMSApplication.dto.BankDto;
 
 import java.util.List;
 
 public interface BankService {
-    List<Bank> getAllBanks();
+
+    List<BankDto> getAllBanks();
 }

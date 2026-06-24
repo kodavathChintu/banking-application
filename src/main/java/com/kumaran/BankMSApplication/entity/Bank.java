@@ -5,24 +5,29 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Entity
 @Table(name = "banks")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Bank {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bankId;
 
+    @Column(nullable = false)
     private String bankName;
 
+    @Column(unique = true, nullable = false)
     private String ifscCode;
 
+    @Column(nullable = false)
     private String branchName;
-    private  String address;
 
-    private Boolean active;
+    @Column(nullable = false)
+    private String address;
+
+    @Column(nullable = false)
+    private Boolean active = true;
 }

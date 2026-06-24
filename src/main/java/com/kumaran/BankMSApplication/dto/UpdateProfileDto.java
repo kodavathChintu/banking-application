@@ -1,12 +1,11 @@
 package com.kumaran.BankMSApplication.dto;
 
-import com.kumaran.BankMSApplication.enums.CustomerStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class CustomerDto {
+public class UpdateProfileDto {
 
     private Long customerId;
 
@@ -22,6 +21,4 @@ public class CustomerDto {
 
     @NotBlank(message = "Address is required")
     private String address;
-
-    private CustomerStatus status;
 }

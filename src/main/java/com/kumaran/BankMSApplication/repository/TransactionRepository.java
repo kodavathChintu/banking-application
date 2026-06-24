@@ -3,13 +3,18 @@ package com.kumaran.BankMSApplication.repository;
 import com.kumaran.BankMSApplication.entity.Account;
 import com.kumaran.BankMSApplication.entity.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface TransactionRepository
-        extends JpaRepository<Transaction, Long> {
+public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    List<Transaction> findBySenderAccount(Account account);
-
-    List<Transaction> findByReceiverAccount(Account account);
+    @Query("""
+            SELECT t
+            FROM Transaction t
+            WHERE t.senderAccount = :account
+               OR t.receiverAccount = :account
+            ORDER BY t.transactionTime DESC
+            """)
+    List<Transaction> getStatement(Account account);
 }

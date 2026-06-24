@@ -9,5 +9,4 @@ public interface UserService {
     String registerCustomer(UserDto userDto);
 
     LoginResponseDto login(LoginRequestDto loginDto);
-
 }

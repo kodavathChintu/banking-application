@@ -5,11 +5,13 @@ import com.kumaran.BankMSApplication.entity.AccountOpeningRequest;
 import com.kumaran.BankMSApplication.entity.Bank;
 import com.kumaran.BankMSApplication.entity.User;
 import com.kumaran.BankMSApplication.enums.RequestStatus;
+import com.kumaran.BankMSApplication.exception.ResourceNotFoundException;
 import com.kumaran.BankMSApplication.repository.AccountOpeningRequestRepository;
 import com.kumaran.BankMSApplication.repository.BankRepository;
 import com.kumaran.BankMSApplication.repository.UserRepository;
 import com.kumaran.BankMSApplication.service.AccountOpeningRequestService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,6 +22,7 @@ public class AccountOpeningRequestServiceImpl
     private final AccountOpeningRequestRepository requestRepository;
     private final UserRepository userRepository;
     private final BankRepository bankRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public String submitRequest(
@@ -29,36 +32,22 @@ public class AccountOpeningRequestServiceImpl
         User user = userRepository
                 .findByEmail(customerEmail)
                 .orElseThrow(() ->
-                        new RuntimeException("User Not Found"));
+                        new ResourceNotFoundException(
+                                "User not found"));
 
         Bank bank = bankRepository
                 .findById(dto.getBankId())
                 .orElseThrow(() ->
-                        new RuntimeException("Bank Not Found"));
+                        new ResourceNotFoundException(
+                                "Bank not found"));
 
         AccountOpeningRequest request =
-                new AccountOpeningRequest();
+                modelMapper.map(dto, AccountOpeningRequest.class);
 
-        request.setCustomerName(dto.getCustomerName());
+        request.setRequestId(null);
 
-        request.setMobileNumber(dto.getMobileNumber());
-
-        request.setGender(dto.getGender());
-
-        request.setAddress(dto.getAddress());
-
-        request.setAccountType(dto.getAccountType());
-
-        /*request.setAadhaarFileName(
-                aadhaarFile.getOriginalFilename()
-        );*/
-
-        request.setRequestStatus(
-                RequestStatus.PENDING
-        );
-
+        request.setRequestStatus(RequestStatus.PENDING);
         request.setBank(bank);
-
         request.setUser(user);
 
         requestRepository.save(request);

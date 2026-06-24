@@ -18,8 +18,10 @@ public class AccountOpeningRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long requestId;
 
+    @Column(nullable = false)
     private String customerName;
 
+    @Column(nullable = false)
     private String mobileNumber;
 
     private String gender;
@@ -27,10 +29,12 @@ public class AccountOpeningRequest {
     private String aadhaarFileName;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private AccountType accountType;
 
     @Enumerated(EnumType.STRING)
-    private RequestStatus requestStatus;
+    @Column(nullable = false)
+    private RequestStatus requestStatus = RequestStatus.PENDING;
 
     @ManyToOne
     @JoinColumn(name = "bank_id")
@@ -40,6 +44,6 @@ public class AccountOpeningRequest {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(nullable = false)
     private String address;
-
 }

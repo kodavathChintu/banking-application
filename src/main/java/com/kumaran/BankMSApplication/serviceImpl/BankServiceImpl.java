@@ -1,9 +1,10 @@
 package com.kumaran.BankMSApplication.serviceImpl;
 
-import com.kumaran.BankMSApplication.entity.Bank;
+import com.kumaran.BankMSApplication.dto.BankDto;
 import com.kumaran.BankMSApplication.repository.BankRepository;
 import com.kumaran.BankMSApplication.service.BankService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,10 +14,18 @@ import java.util.List;
 public class BankServiceImpl implements BankService {
 
     private final BankRepository bankRepository;
+    private final ModelMapper modelMapper;
 
     @Override
-    public List<Bank> getAllBanks() {
+    public List<BankDto> getAllBanks() {
 
-        return bankRepository.findAll();
+        return bankRepository.findAll()
+                .stream()
+                .map(bank ->
+                        modelMapper.map(
+                                bank,
+                                BankDto.class
+                        ))
+                .toList();
     }
 }

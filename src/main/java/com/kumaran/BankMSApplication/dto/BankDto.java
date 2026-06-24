@@ -1,15 +1,24 @@
 package com.kumaran.BankMSApplication.dto;
 
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class BankDto {
 
+    private Long bankId;
+
+    @NotBlank(message = "Bank name is required")
     private String bankName;
+
+    @NotBlank(message = "IFSC code is required")
     private String ifscCode;
-    private  String branchName;
+
+    @NotBlank(message = "Branch name is required")
+    private String branchName;
+
+    @NotBlank(message = "Address is required")
+    private String address;
+
+    private Boolean active;
 }

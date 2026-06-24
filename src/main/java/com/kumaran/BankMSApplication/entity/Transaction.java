@@ -14,16 +14,20 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "transactions")
 public class Transaction {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long transactionId;
 
+    @Column(nullable = false)
     private Double amount;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private TransactionType transactionType;
 
-    private LocalDateTime transactionTime;
+    @Column(nullable = false)
+    private LocalDateTime transactionTime = LocalDateTime.now();
 
     private String remarks;
 

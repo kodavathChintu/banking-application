@@ -7,6 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface AccountOpeningRequestRepository extends JpaRepository<AccountOpeningRequest, Long> {
-    List<AccountOpeningRequest>
-    findByRequestStatus(RequestStatus requestStatus);
+
+    List<AccountOpeningRequest> findByRequestStatus(RequestStatus requestStatus);
+
+    Long countByRequestStatus(RequestStatus requestStatus);
+
+    List<AccountOpeningRequest> findByUserUserId(Long userId);
 }
