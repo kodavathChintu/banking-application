@@ -6,6 +6,7 @@ import com.kumaran.BankMSApplication.dto.DashboardDto;
 import com.kumaran.BankMSApplication.entity.AccountOpeningRequest;
 import com.kumaran.BankMSApplication.service.ManagerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -92,8 +93,11 @@ public class ManagerController {
     }
 
     @GetMapping("/dashboard")
-    public DashboardDto getDashboardData() {
+    public DashboardDto getDashboardData(
+            Authentication authentication){
 
-        return managerService.getDashboardData();
+        return managerService.getDashboardData(
+                authentication.getName()
+        );
     }
 }
