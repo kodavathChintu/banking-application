@@ -1,6 +1,8 @@
 package com.kumaran.BankMSApplication.repository;
 
+import com.kumaran.BankMSApplication.entity.Bank;
 import com.kumaran.BankMSApplication.entity.Customer;
+import com.kumaran.BankMSApplication.entity.User;
 import com.kumaran.BankMSApplication.enums.CustomerStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -14,5 +16,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Optional<Customer> findByUserUserId(Long userId);
 
     List<Customer> findByStatus(CustomerStatus status);
+    Long countByBank(Bank bank);
+    Optional<Customer> findByUserAndBank(User user, Bank bank);
 
 }

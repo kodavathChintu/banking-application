@@ -90,4 +90,16 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
+
+    @ExceptionHandler(
+            CustomerDeactivatedException.class)
+    public ResponseEntity<String>
+    handleCustomerDeactivated(
+            CustomerDeactivatedException ex){
+
+        return new ResponseEntity<>(
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
 }

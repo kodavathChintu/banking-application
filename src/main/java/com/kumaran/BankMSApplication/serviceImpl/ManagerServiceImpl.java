@@ -3,18 +3,13 @@ package com.kumaran.BankMSApplication.serviceImpl;
 import com.kumaran.BankMSApplication.dto.AccountDto;
 import com.kumaran.BankMSApplication.dto.CustomerDto;
 import com.kumaran.BankMSApplication.dto.DashboardDto;
-import com.kumaran.BankMSApplication.entity.Account;
-import com.kumaran.BankMSApplication.entity.AccountOpeningRequest;
-import com.kumaran.BankMSApplication.entity.Customer;
+import com.kumaran.BankMSApplication.entity.*;
 import com.kumaran.BankMSApplication.enums.AccountStatus;
 import com.kumaran.BankMSApplication.enums.CustomerStatus;
 import com.kumaran.BankMSApplication.enums.RequestStatus;
 import com.kumaran.BankMSApplication.exception.AccountClosureException;
 import com.kumaran.BankMSApplication.exception.ResourceNotFoundException;
-import com.kumaran.BankMSApplication.repository.AccountOpeningRequestRepository;
-import com.kumaran.BankMSApplication.repository.AccountRepository;
-import com.kumaran.BankMSApplication.repository.CustomerRepository;
-import com.kumaran.BankMSApplication.repository.TransactionRepository;
+import com.kumaran.BankMSApplication.repository.*;
 import com.kumaran.BankMSApplication.service.ManagerService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -32,6 +27,7 @@ public class ManagerServiceImpl implements ManagerService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final ModelMapper modelMapper;
+    private final BankManagerRepository bankManagerRepository;
 
     @Override
     public List<AccountOpeningRequest> getPendingRequests() {
@@ -265,20 +261,34 @@ public class ManagerServiceImpl implements ManagerService {
     }
 
     @Override
-    public DashboardDto getDashboardData() {
+    public DashboardDto getDashboardData(
+            String managerEmail) {
+
+        BankManager manager =
+                bankManagerRepository
+                        .findByUserEmail(managerEmail)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Manager Not Found"));
+
+        Bank bank = manager.getBank();
 
         Long totalCustomers =
-                customerRepository.count();
+                customerRepository.countByBank(bank);
 
         Long totalAccounts =
-                accountRepository.count();
+                accountRepository.countByBank(bank);
 
         Long totalTransactions =
-                transactionRepository.count();
+                transactionRepository
+                        .countTransactionsByBank(bank);
 
         Long totalPendingRequests =
-                requestRepository.countByRequestStatus(
-                        RequestStatus.PENDING);
+                requestRepository
+                        .countByBankAndRequestStatus(
+                                bank,
+                                RequestStatus.PENDING
+                        );
 
         return new DashboardDto(
                 totalCustomers,

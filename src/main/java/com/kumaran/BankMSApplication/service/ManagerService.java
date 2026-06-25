@@ -31,5 +31,5 @@ public interface ManagerService {
 
     AccountDto getAccountByNumber(String accountNumber);
 
-    DashboardDto getDashboardData();
+    DashboardDto getDashboardData(String managerEmail);
 }
