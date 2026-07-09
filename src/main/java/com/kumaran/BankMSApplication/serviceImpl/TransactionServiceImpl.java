@@ -14,8 +14,13 @@ import com.kumaran.BankMSApplication.exception.ResourceNotFoundException;
 import com.kumaran.BankMSApplication.repository.AccountRepository;
 import com.kumaran.BankMSApplication.repository.TransactionRepository;
 import com.kumaran.BankMSApplication.service.TransactionService;
+import com.kumaran.BankMSApplication.util.PdfGenerator;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -29,6 +34,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final ModelMapper modelMapper;
+    private final PdfGenerator pdfGenerator;
 
     @Override
     public String deposit(TransactionRequestDto dto) {
@@ -202,8 +208,10 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionDto> getStatement(
-            String accountNumber) {
+    public Page<TransactionDto> getStatement(
+            String accountNumber,
+            int page,
+            int size) {
 
         Account account = accountRepository
                 .findByAccountNumber(accountNumber)
@@ -211,15 +219,63 @@ public class TransactionServiceImpl implements TransactionService {
                         new ResourceNotFoundException(
                                 "Account not found"));
 
-        return transactionRepository
-                .getStatement(account)
-                .stream()
-                .map(transaction ->
+        Pageable pageable =
+                PageRequest.of(
+                        page,
+                        size,
+                        Sort.by("transactionTime")
+                                .descending());
+
+        Page<Transaction> transactions =
+                transactionRepository
+                        .findBySenderAccountOrReceiverAccount(
+                                account,
+                                account,
+                                pageable);
+
+        return transactions.map(
+                transaction ->
                         modelMapper.map(
                                 transaction,
-                                TransactionDto.class))
-                .toList();
+                                TransactionDto.class
+                        ));
     }
 
+    @Override
+    public byte[] downloadStatement(String accountNumber) {
 
+        Account account = accountRepository
+                .findByAccountNumber(accountNumber)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Account not found"));
+
+        List<TransactionDto> transactions =
+                transactionRepository
+                        .findBySenderAccountOrReceiverAccountOrderByTransactionTimeDesc(
+                                account,
+                                account
+                        )
+                        .stream()
+                        .map(transaction ->
+                                modelMapper.map(
+                                        transaction,
+                                        TransactionDto.class))
+                        .toList();
+
+        try {
+
+            return PdfGenerator.generateStatement(
+                    account,
+                    transactions
+            );
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Error while generating PDF",
+                    e
+            );
+        }
+    }
 }

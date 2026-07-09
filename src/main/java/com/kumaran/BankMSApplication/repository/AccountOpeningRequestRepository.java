@@ -2,6 +2,7 @@ package com.kumaran.BankMSApplication.repository;
 
 import com.kumaran.BankMSApplication.entity.AccountOpeningRequest;
 import com.kumaran.BankMSApplication.entity.Bank;
+import com.kumaran.BankMSApplication.entity.User;
 import com.kumaran.BankMSApplication.enums.RequestStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -15,4 +16,8 @@ public interface AccountOpeningRequestRepository extends JpaRepository<AccountOp
 
     List<AccountOpeningRequest> findByUserUserId(Long userId);
     Long countByBankAndRequestStatus(Bank bank, RequestStatus status);
+    AccountOpeningRequest findTopByUserOrderByRequestIdDesc(User user);
+    AccountOpeningRequest findTopByUserAndBankOrderByRequestIdDesc(User user, Bank bank);
+
+    List<AccountOpeningRequest> findByBankAndRequestStatus(Bank bank, RequestStatus requestStatus);
 }

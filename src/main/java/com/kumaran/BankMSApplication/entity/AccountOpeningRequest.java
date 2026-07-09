@@ -3,6 +3,8 @@ package com.kumaran.BankMSApplication.entity;
 import com.kumaran.BankMSApplication.enums.AccountType;
 import com.kumaran.BankMSApplication.enums.RequestStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -46,4 +48,8 @@ public class AccountOpeningRequest {
 
     @Column(nullable = false)
     private String address;
+
+    public void setEmail(@NotBlank(message = "Email is required") @Email(message = "Invalid email format") @NotBlank(message = "Email is required") @Email(message = "Invalid email format") String email) {
+    }
+
 }

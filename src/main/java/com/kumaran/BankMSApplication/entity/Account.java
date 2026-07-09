@@ -44,4 +44,5 @@ public class Account {
     @ManyToOne
     @JoinColumn(name = "bank_id")
     private Bank bank;
+
 }

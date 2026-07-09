@@ -4,8 +4,10 @@ import com.kumaran.BankMSApplication.enums.TransactionType;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+
 @Data
 public class TransactionDto {
+
     private Long transactionId;
 
     private Double amount;
@@ -15,4 +17,9 @@ public class TransactionDto {
     private LocalDateTime transactionTime;
 
     private String remarks;
+
+    // Additional fields for PDF
+    private String senderAccountNumber;
+
+    private String receiverAccountNumber;
 }

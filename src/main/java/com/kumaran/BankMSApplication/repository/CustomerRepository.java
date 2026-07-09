@@ -13,10 +13,12 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     Optional<Customer> findByEmail(String email);
 
-    Optional<Customer> findByUserUserId(Long userId);
-
+  
+    List<Customer> findByUserUserId(Long userId);
     List<Customer> findByStatus(CustomerStatus status);
     Long countByBank(Bank bank);
-    Optional<Customer> findByUserAndBank(User user, Bank bank);
 
+
+    Optional<Customer> findByUserAndBank(User user, Bank bank);
+    //boolean existsByUser(User user);
 }

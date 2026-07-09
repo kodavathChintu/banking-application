@@ -3,6 +3,7 @@ package com.kumaran.BankMSApplication.service;
 import com.kumaran.BankMSApplication.dto.TransactionDto;
 import com.kumaran.BankMSApplication.dto.TransactionRequestDto;
 import com.kumaran.BankMSApplication.dto.TransferRequestDto;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -18,5 +19,10 @@ public interface TransactionService {
 
 
 
-    List<TransactionDto> getStatement(String accountNumber);
+    Page<TransactionDto> getStatement(
+            String accountNumber,
+            int page,
+            int size
+    );
+    byte[] downloadStatement(String accountNumber);
 }

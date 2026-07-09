@@ -102,4 +102,14 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST
         );
     }
+
+    @ExceptionHandler(CustomerInactiveException.class)
+    public ResponseEntity<String> handleCustomerInactive(
+            CustomerInactiveException ex) {
+
+        return new ResponseEntity<>(
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
 }

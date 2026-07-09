@@ -13,7 +13,7 @@ public interface ManagerService {
 
     String approveRequest(Long requestId);
 
-    List<CustomerDto> getAllCustomers();
+    List<CustomerDto> getAllCustomers(String sort);
 
     CustomerDto getCustomerById(Long customerId);
 
@@ -31,5 +31,6 @@ public interface ManagerService {
 
     AccountDto getAccountByNumber(String accountNumber);
 
-    DashboardDto getDashboardData(String managerEmail);
+    DashboardDto getDashboardData();
+
 }

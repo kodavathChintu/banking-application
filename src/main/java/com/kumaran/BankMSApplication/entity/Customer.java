@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,7 +27,7 @@ public class Customer {
 
     private String gender;
 
-    @Column(unique = true, nullable = false)
+    @Column( nullable = false)
     private String email;
 
     private String address;
@@ -39,7 +41,15 @@ public class Customer {
     @JoinColumn(name = "bank_id")
     private Bank bank;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 }

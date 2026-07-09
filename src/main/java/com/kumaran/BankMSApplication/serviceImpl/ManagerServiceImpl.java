@@ -11,6 +11,9 @@ import com.kumaran.BankMSApplication.exception.AccountClosureException;
 import com.kumaran.BankMSApplication.exception.ResourceNotFoundException;
 import com.kumaran.BankMSApplication.repository.*;
 import com.kumaran.BankMSApplication.service.ManagerService;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -32,7 +35,20 @@ public class ManagerServiceImpl implements ManagerService {
     @Override
     public List<AccountOpeningRequest> getPendingRequests() {
 
-        return requestRepository.findByRequestStatus(
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String managerEmail = authentication.getName();
+
+        BankManager manager =
+                bankManagerRepository.findByUserEmail(managerEmail)
+                        .orElseThrow(() ->
+                                new RuntimeException("Manager not found"));
+
+        Bank bank = manager.getBank();
+
+        return requestRepository.findByBankAndRequestStatus(
+                bank,
                 RequestStatus.PENDING
         );
     }
@@ -40,11 +56,12 @@ public class ManagerServiceImpl implements ManagerService {
     @Override
     public String approveRequest(Long requestId) {
 
-        AccountOpeningRequest request =
-                requestRepository.findById(requestId)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Request not found"));
+
+        AccountOpeningRequest
+        request = requestRepository.findById(requestId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Request not found"));
 
         if (request.getRequestStatus() ==
                 RequestStatus.APPROVED) {
@@ -52,6 +69,19 @@ public class ManagerServiceImpl implements ManagerService {
             return "Request already approved";
         }
 
+
+        Customer existingCustomer =
+                customerRepository.findByUserAndBank(request.getUser(), request.getBank())
+                        .orElse(null);
+
+        if (existingCustomer != null &&
+                accountRepository.existsByCustomer(existingCustomer)) {
+
+            request.setRequestStatus(RequestStatus.REJECTED);
+            requestRepository.save(request);
+
+            return "Customer already has an account. Duplicate request rejected.";
+        }
         Customer customer = new Customer();
 
         customer.setCustomerName(
@@ -115,30 +145,82 @@ public class ManagerServiceImpl implements ManagerService {
     }
 
     @Override
-    public List<CustomerDto> getAllCustomers() {
+    public List<CustomerDto> getAllCustomers(String sort) {
 
-        return customerRepository.findAll()
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String managerEmail = authentication.getName();
+
+        BankManager manager =
+                bankManagerRepository.findByUserEmail(managerEmail)
+                        .orElseThrow(() ->
+                                new RuntimeException("Manager not found"));
+
+        Bank bank = manager.getBank();
+
+        Sort sorting;
+
+        switch (sort) {
+
+            case "oldest":
+                sorting = Sort.by("createdAt").ascending();
+                break;
+
+            case "az":
+                sorting = Sort.by("customerName").ascending();
+                break;
+
+            case "za":
+                sorting = Sort.by("customerName").descending();
+                break;
+
+            case "newest":
+            default:
+                sorting = Sort.by("createdAt").descending();
+                break;
+        }
+
+        return customerRepository.findAll(sorting)
                 .stream()
-                .map(customer ->
-                        modelMapper.map(
-                                customer,
-                                CustomerDto.class))
+                .filter(customer ->
+                        customer.getBank().getBankId().equals(bank.getBankId()))
+                .map(customer -> {
+
+                    CustomerDto dto = new CustomerDto();
+
+                    dto.setCustomerId(customer.getCustomerId());
+                    dto.setCustomerName(customer.getCustomerName());
+                    dto.setEmail(customer.getEmail());
+                    dto.setMobileNumber(customer.getMobileNumber());
+                    dto.setAddress(customer.getAddress());
+                    dto.setStatus(customer.getStatus());
+                    dto.setBankName(customer.getBank().getBankName());
+
+                    return dto;
+
+                })
                 .toList();
     }
 
     @Override
     public CustomerDto getCustomerById(Long customerId) {
 
-        Customer customer = customerRepository
-                .findById(customerId)
+        Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Customer not found"));
+                        new ResourceNotFoundException("Customer not found"));
 
-        return modelMapper.map(
-                customer,
-                CustomerDto.class
-        );
+        CustomerDto dto = new CustomerDto();
+
+        dto.setCustomerId(customer.getCustomerId());
+        dto.setCustomerName(customer.getCustomerName());
+        dto.setEmail(customer.getEmail());
+        dto.setMobileNumber(customer.getMobileNumber());
+        dto.setAddress(customer.getAddress());
+        dto.setStatus(customer.getStatus());
+        dto.setBankName(customer.getBank().getBankName());
+
+        return dto;
     }
 
     @Override
@@ -178,12 +260,36 @@ public class ManagerServiceImpl implements ManagerService {
     @Override
     public List<AccountDto> getAllAccounts() {
 
-        return accountRepository.findAll()
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String managerEmail = authentication.getName();
+
+        BankManager manager = bankManagerRepository
+                .findByUserEmail(managerEmail)
+                .orElseThrow(() ->
+                        new RuntimeException("Manager not found"));
+
+        Bank bank = manager.getBank();
+
+        return accountRepository.findByBank(bank)
                 .stream()
-                .map(account ->
-                        modelMapper.map(
-                                account,
-                                AccountDto.class))
+                .map(account -> {
+
+                    AccountDto dto = new AccountDto();
+
+                    dto.setAccountId(account.getAccountId());
+                    dto.setAccountNumber(account.getAccountNumber());
+                    dto.setBalance(account.getBalance());
+                    dto.setAccountStatus(account.getAccountStatus());
+                    dto.setAccountType(account.getAccountType());
+
+                    dto.setCustomerName(account.getCustomer().getCustomerName());
+                    dto.setBankName(account.getBank().getBankName());
+                    dto.setIfscCode(account.getBank().getIfscCode());
+
+                    return dto;
+                })
                 .toList();
     }
 
@@ -245,24 +351,48 @@ public class ManagerServiceImpl implements ManagerService {
     }
 
     @Override
-    public AccountDto getAccountByNumber(
-            String accountNumber) {
+    public AccountDto getAccountByNumber(String accountNumber) {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String managerEmail = authentication.getName();
+
+        BankManager manager = bankManagerRepository
+                .findByUserEmail(managerEmail)
+                .orElseThrow(() ->
+                        new RuntimeException("Manager not found"));
 
         Account account = accountRepository
                 .findByAccountNumber(accountNumber)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Account not found"));
+                        new ResourceNotFoundException("Account not found"));
 
-        return modelMapper.map(
-                account,
-                AccountDto.class
-        );
+        if (!account.getBank().getBankId().equals(manager.getBank().getBankId())) {
+            throw new ResourceNotFoundException("Account not found");
+        }
+
+        AccountDto dto = new AccountDto();
+
+        dto.setAccountId(account.getAccountId());
+        dto.setAccountNumber(account.getAccountNumber());
+        dto.setBalance(account.getBalance());
+        dto.setAccountStatus(account.getAccountStatus());
+        dto.setAccountType(account.getAccountType());
+        dto.setCustomerName(account.getCustomer().getCustomerName());
+        dto.setBankName(account.getBank().getBankName());
+        dto.setIfscCode(account.getBank().getIfscCode());
+
+        return dto;
     }
 
     @Override
-    public DashboardDto getDashboardData(
-            String managerEmail) {
+    public DashboardDto getDashboardData() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String managerEmail = authentication.getName();
 
         BankManager manager =
                 bankManagerRepository

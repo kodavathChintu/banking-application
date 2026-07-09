@@ -24,4 +24,6 @@ public class CustomerDto {
     private String address;
 
     private CustomerStatus status;
+    private String bankName;
+    
 }
