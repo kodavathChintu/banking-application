@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Bank favicon">
+  <rect width="64" height="64" rx="16" fill="#0f4c81"/>
+  <path d="M32 10L12 20v4h40v-4L32 10zm-16 18h32v4H16v-4zm2 8h28v4H18v-4zm-2 8h32v4H16v-4z" fill="#ffffff"/>
+  <path d="M24 40h16v10H24z" fill="#fbbf24"/>
+  <path d="M18 28h28v2H18z" fill="#7dd3fc"/>
+</svg>
